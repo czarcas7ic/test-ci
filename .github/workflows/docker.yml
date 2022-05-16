@@ -33,14 +33,14 @@ jobs:
             type=semver,pattern={{major}}
       - 
         name: echo-build
-        run: echo ${{ steps.meta.outputs.tags }}
+        run: echo "${{ steps.meta.outputs.tags }}"
       - 
         name: Build and push
         uses: docker/build-push-action@v2
         with:
           file: Dockerfile
           context: .
-          push: true
+          push: false
           platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
       - 
