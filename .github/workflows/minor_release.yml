@@ -1,0 +1,62 @@
+name: minor_release
+
+on:
+  push:
+    tags:
+    # Runs on any new tag
+    - 'v*'
+  
+env:
+  DOCKER_REPOSITORY: osmolabs/osmosis
+  TEST: ${{github.ref_name}}
+
+jobs:
+
+  minor_release:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v2
+      - 
+        name: test1
+        run:  echo ${{ github.ref_name }}
+      - 
+        name: test2
+        run:  echo  ${{ env.TEST }}
+      
+
+  # docker:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - 
+  #       name: Check out the repo
+  #       uses: actions/checkout@v2
+  #     - 
+  #       name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v1
+  #     - 
+  #       name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+  #     -
+  #       name: Docker meta
+  #       id: meta
+  #       uses: docker/metadata-action@v3
+  #       with:
+  #         images: ${{ env.DOCKER_REPOSITORY }}
+  #         tags: |
+  #           type=semver,pattern={{version}}
+  #           type=semver,pattern={{major}}.{{minor}}
+  #           type=semver,pattern={{major}}
+  #     - 
+  #       name: Build and push
+  #       uses: docker/build-push-action@v2
+  #       with:
+  #         file: Dockerfile
+  #         context: .
+  #         push: false
+  #         platforms: linux/amd64
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #     - 
+  #       name: Image digest
+  #       run: echo ${{ steps.docker_build.outputs.digest }}
