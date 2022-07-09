@@ -61,10 +61,11 @@ jobs:
           name: release
           path: release
       - 
+        # Avoid hardcoding tag
         name: Copy osmosisd binary to PATH and check version
         run: |
           ls -R
-          sudo cp 'osmosisd-*-linux-amd64' /usr/local/bin/osmosisd
+          sudo cp 'osmosisd-10.0.0-linux-amd64' /usr/local/bin/osmosisd
           osmosisd version
         working-directory: release
       - 
