@@ -12,13 +12,38 @@ env:
  
 jobs:
 
+  create_artifacts:
+
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v2
+      - 
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - 
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - 
+        name: Launch release process
+        run: |
+          make -f contrib/images/osmobuilder/Makefile release
+      - 
+        name: Upload release folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: release
+
   minor_release:
   
     runs-on: ubuntu-latest
 
     # Runs this workflow only on a minor release
-    # A new major release vX.Y.Z would end with vX.0.0
-    if: ${{ !endsWith(github.ref_name, '0.0') }}
+    # A new major release would have this pattern vX.0.0{-rcN}
+    if: ${{ startsWith(github.ref_name, v*.0.0*) }}
+    
 
     steps:
       - 
@@ -27,9 +52,6 @@ jobs:
       - 
         name: test1
         run:  echo ${{ github.ref_name }}
-      - 
-        name: echo previous tag 
-        run:  echo  ${{ steps.previoustag.outputs.tag }}
       - 
         name: echo home
         run:  echo  $HOME
