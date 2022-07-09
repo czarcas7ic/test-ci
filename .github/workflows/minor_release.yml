@@ -4,7 +4,8 @@ on:
   push:
     tags:
     # Runs on any new tag
-    - 'v[0-9]+.[0-9]+.[0-9]+' # ignore release candidates otherwise the vX.0.0 check below would fail
+    # - 'v[0-9]+.[0-9]+.[0-9]+' # ignore release candidates otherwise the vX.0.0 check below would fail
+    - 'v*'
   
 env:
   DOCKER_REPOSITORY: osmolabs/osmosis
@@ -19,31 +20,30 @@ jobs:
       - 
         name: Check out the repo
         uses: actions/checkout@v2
-      - 
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - 
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - 
-        name: Launch release process
-        run: |
-          make -f contrib/images/osmobuilder/Makefile release
-      - 
-        name: Upload release folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: release
-          path: release
+      # - 
+      #   name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v1
+      # - 
+      #   name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
+      # - 
+      #   name: Launch release process
+      #   run: |
+      #     make -f contrib/images/osmobuilder/Makefile release
+      # - 
+      #   name: Upload release folder
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: release
+      #     path: release
 
   minor_release:
   
     runs-on: ubuntu-latest
 
     # Runs this workflow only on a minor release
-    # A new major release would have this pattern vX.0.0{-rcN}
-    if: ${{ startsWith(github.ref_name, v*.0.0*) }}
-    
+    # A new major release would follow this pattern vX.0.0{-rcN}
+    if: ${{ startsWith(github.ref_name, 'v*.0.0*) }}
 
     steps:
       - 
