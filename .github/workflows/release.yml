@@ -55,12 +55,20 @@ jobs:
           name: release
           path: release
       - 
-        name: Display structure of downloaded files
-        run: ls -R
+        name: Copy osmosisd binary to PATH and check version
+        run: |
+          sudo cp osmosisd-*-linux-amd64 /usr/local/bin/osmosisd
+          osmosisd version
         working-directory: release
       - 
+        name: Install necessary dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends aria2 lz4
+          echo $PATH
+      - 
         name: Download genesis
-        run:  wget -O $HOME/genesis.json ${{ env.GENESIS_URL }}
+        run:  wget -q --show-progress -O $HOME/genesis.json ${{ env.GENESIS_URL }}
       - 
         name: echo home
         run:  echo  $HOME
@@ -90,4 +98,13 @@ jobs:
       - 
           name: Create draft release
           run:  echo "Creating draft release"
+  
+  post_release:
+    runs-on: ubuntu-latest
+    needs: [create_release]
+    # Runs this workflow in any release
+    steps:
+      - 
+          name: Update tools
+          run:  echo "Updating tools"
   
