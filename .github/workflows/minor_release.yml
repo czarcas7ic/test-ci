@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # Runs this workflow only on a minor release
-    # vX.Y.Z is minor release <===> (Y != 0) && (Z != 0)
+    # A new major release vX.Y.Z would end with vX.0.0
     if: ${{ !endsWith(github.ref_name, '0.0') }}
 
     steps:
