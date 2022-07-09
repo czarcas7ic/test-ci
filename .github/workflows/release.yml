@@ -39,7 +39,7 @@ jobs:
         name: (stub) Launch release process 
         run: |
           mkdir release
-          wget -q --show-progress -O release/ https://github.com/osmosis-labs/osmosis/releases/download/v10.0.0/osmosis-10.0.0-linux-amd64
+          wget -q --show-progress -P release/ https://github.com/osmosis-labs/osmosis/releases/download/v10.0.0/osmosis-10.0.0-linux-amd64
       - 
         name: Upload release folder
         uses: actions/upload-artifact@v2
