@@ -22,19 +22,24 @@ jobs:
         uses: actions/checkout@v3
         with:                                        # remove this when merging into main repo
           repository: osmosis-labs/osmosis           # ""
-          ref: v10.0.1                               # ""
+          ref: v10.0.0                               # ""
       - 
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - 
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+      # - 
+      #   name: Launch release process
+      #   # switch commented line below when done
+      #   run: |
+      #     # make -f contrib/images/osmobuilder/Makefile release
+      #     make -f contrib/images/osmobuilder/Makefile get-binary-amd64
       - 
-        name: Launch release process
-        # switch commented line below when done
+        name: (stub) Launch release process 
         run: |
-          # make -f contrib/images/osmobuilder/Makefile release
-          make -f contrib/images/osmobuilder/Makefile get-binary-amd64
+          mkdir release
+          wget -q --show-progress -O release/ https://github.com/osmosis-labs/osmosis/releases/download/v10.0.0/osmosis-10.0.0-linux-amd64
       - 
         name: Upload release folder
         uses: actions/upload-artifact@v2
@@ -50,6 +55,7 @@ jobs:
     if: ${{ github.ref != 'v*.0.0*' }}
     steps:
       -
+        name: Download artifics from previous job
         uses: actions/download-artifact@v3
         with:
           name: release
@@ -57,7 +63,8 @@ jobs:
       - 
         name: Copy osmosisd binary to PATH and check version
         run: |
-          sudo cp osmosisd-*-linux-amd64 /usr/local/bin/osmosisd
+          ls -R
+          sudo cp osmosisd-${{ github.ref }}-linux-amd64 /usr/local/bin/osmosisd
           osmosisd version
         working-directory: release
       - 
