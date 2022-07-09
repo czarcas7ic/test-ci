@@ -20,7 +20,8 @@ jobs:
         name: Check out the repo
         uses: actions/checkout@v3
         with:                                        # remove this when merging into main repo
-          repository: osmosis-labs/osmosis 
+          repository: osmosis-labs/osmosis           # ""
+          ref: v10.0.1                               # ""
       - 
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
