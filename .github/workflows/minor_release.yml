@@ -13,7 +13,13 @@ env:
 jobs:
 
   minor_release:
+  
     runs-on: ubuntu-latest
+
+    # Runs this workflow only on a minor release
+    # vX.Y.Z is minor release <===> (Y != 0) && (Z != 0)
+    if: ${{ !endsWith(github.ref_name, '0.0') }}
+
     steps:
       - 
         name: Check out the repo
