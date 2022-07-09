@@ -64,7 +64,7 @@ jobs:
         name: Copy osmosisd binary to PATH and check version
         run: |
           ls -R
-          sudo cp osmosisd-${{ github.ref }}-linux-amd64 /usr/local/bin/osmosisd
+          sudo cp 'osmosisd-*-linux-amd64' /usr/local/bin/osmosisd
           osmosisd version
         working-directory: release
       - 
