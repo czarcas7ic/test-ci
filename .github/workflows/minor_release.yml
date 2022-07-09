@@ -4,7 +4,7 @@ on:
   push:
     tags:
     # Runs on any new tag
-    - 'v*'
+    - 'v[0-9]+.[0-9]+.[0-9]+' # ignore release candidates otherwise the vX.0.0 check below would fail
   
 env:
   DOCKER_REPOSITORY: osmolabs/osmosis
@@ -24,22 +24,21 @@ jobs:
       - 
         name: Check out the repo
         uses: actions/checkout@v2
-        with:
-          # Get complete history
-          fetch-depth: 0
       - 
         name: test1
         run:  echo ${{ github.ref_name }}
       - 
-        name: test2
-        run:  echo  ${{ env.TEST }}
-      - 
-        name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-      - 
         name: echo previous tag 
         run:  echo  ${{ steps.previoustag.outputs.tag }}
+      - 
+        name: echo home
+        run:  echo  $HOME
+      - 
+        name: pwd
+        run:  pwd
+      - 
+        name: ls
+        run:  ls
     
   # docker:
   #   runs-on: ubuntu-latest
