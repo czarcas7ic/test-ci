@@ -8,8 +8,8 @@ on:
   
 env:
   DOCKER_REPOSITORY: osmolabs/osmosis
-  TEST: ${{github.ref_name}}
-
+  CURRENT_TAG: ${{ github.ref_name }} # ref_name = the branch or tag name that triggered the workflow run.
+ 
 jobs:
 
   minor_release:
@@ -18,14 +18,23 @@ jobs:
       - 
         name: Check out the repo
         uses: actions/checkout@v2
+        with:
+          # Get complete history
+          fetch-depth: 0
       - 
         name: test1
         run:  echo ${{ github.ref_name }}
       - 
         name: test2
         run:  echo  ${{ env.TEST }}
-      
-
+      - 
+        name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - 
+        name: echo previous tag 
+        run:  echo  ${{ steps.previoustag.outputs.tag }}
+    
   # docker:
   #   runs-on: ubuntu-latest
   #   steps:
