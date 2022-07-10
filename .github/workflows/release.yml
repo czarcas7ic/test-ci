@@ -57,7 +57,7 @@ jobs:
         name: Install necessary dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends aria2 lz4
+          sudo apt-get install -y --no-install-recommends aria2 lz4 jq
       -
         name: Download artifics from previous job
         uses: actions/download-artifact@v3
@@ -79,9 +79,18 @@ jobs:
         name: Download genesis
         run:  wget -q -O $HOME/config/genesis.json ${{ env.GENESIS_URL }}
       - 
+        name: Download snapshot
+        run:  |
+          SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[0].url')
+          wget -O - $SNAPSHOT_URL | lz4 -d | tar -xvf -
+        working-directory: $HOME/.osmosisd/
+      - 
         name: ls
-        run:  ls
-  
+        run: |
+          ls $HOME/.osmosisd/
+          ls $HOME/.osmosisd/data
+
+
   major_release:
     runs-on: ubuntu-latest
     needs: [create_artifacts]
