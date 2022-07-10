@@ -18,7 +18,7 @@ env:
 jobs:
 
   create_artifacts:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - 
         name: Check out the repo
@@ -50,7 +50,7 @@ jobs:
           path: release
 
   minor_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [create_artifacts]
     # Runs this workflow only on a minor release
     # A new major release would follow the pattern vX.0.0{-rcN}
@@ -76,7 +76,7 @@ jobs:
         working-directory: release
       - 
         name: Initialize Osmosis Node
-        run:  osmosisd init osmo-github-runner --home $HOME/.osmosisd/
+        run:  osmosisd init osmo-github-runner --home $HOME/.osmosisd/ --chain-id=osmo-1
       - 
         name: Download genesis
         run:  wget -q -O $HOME/.osmosisd/config/genesis.json ${{ env.GENESIS_URL }}
@@ -103,8 +103,10 @@ jobs:
           # app.toml
           # sed -i "/^halt-height = .*/ s//halt-height = $HALT_HEIGHT/" $CONFIG_FOLDER/app.toml
           osmosisd start \
+            --moniker osmo-github-runner \
+            --home $HOME/.osmosisd/ \ 
             --halt-height $HALT_HEIGHT \
-            --pruning everything
+            --pruning everything             
             #--p2p.seeds 
           
       - 
@@ -115,7 +117,7 @@ jobs:
 
 
   major_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [create_artifacts]
     # Runs this workflow only on a major release
     # A new major release would follow the pattern vX.0.0{-rcN}
@@ -126,7 +128,7 @@ jobs:
           run:  echo Major release workflow ${{ github.ref_name }}
   
   create_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [major_release, minor_release]
     # Runs this workflow in any release
     steps:
@@ -135,7 +137,7 @@ jobs:
           run:  echo "Creating draft release"
   
   post_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [create_release]
     # Runs this workflow in any release
     steps:
