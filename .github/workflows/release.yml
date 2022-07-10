@@ -65,7 +65,6 @@ jobs:
           name: release
           path: release
       - 
-        # Change `osmosis` to `osmosisd` once te PR is merged into main repo
         name: Copy osmosisd binary to PATH and check version
         run: |
           sudo cp osmosisd-*-linux-amd64 /usr/local/bin/osmosisd
@@ -74,10 +73,10 @@ jobs:
         working-directory: release
       - 
         name: Initialize Osmosis Node
-        run:  osmosisd init osmo-github-runner --home $HOME
+        run:  osmosisd init osmo-github-runner --home $HOME/.osmosisd/
       - 
         name: Download genesis
-        run:  wget -q -O $HOME/config/genesis.json ${{ env.GENESIS_URL }}
+        run:  wget -q -O $HOME/.osmosisd/config/genesis.json ${{ env.GENESIS_URL }}
       - 
         name: Download snapshot
         run:  |
