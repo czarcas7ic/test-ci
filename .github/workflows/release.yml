@@ -34,7 +34,6 @@ jobs:
       #   # switch commented line below when done
       #   run: |
       #     # make -f contrib/images/osmobuilder/Makefile release
-      #     make -f contrib/images/osmobuilder/Makefile get-binary-amd64
       - 
         name: (stub) Launch release process 
         run: |
@@ -54,6 +53,11 @@ jobs:
     # A new major release would follow the pattern vX.0.0{-rcN}
     if: ${{ github.ref != 'v*.0.0*' }}
     steps:
+      - 
+        name: Install necessary dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends aria2 lz4
       -
         name: Download artifics from previous job
         uses: actions/download-artifact@v3
@@ -64,27 +68,16 @@ jobs:
         # Change `osmosis` to `osmosisd` once te PR is merged into main repo
         name: Copy osmosisd binary to PATH and check version
         run: |
-          ls -R
-          echo $PATH
-          sudo cp osmosis-*-linux-amd64 /usr/local/bin/osmosisd
+          sudo cp osmosisd-*-linux-amd64 /usr/local/bin/osmosisd
           sudo chmod 755 /usr/local/bin/osmosisd
           osmosisd version
         working-directory: release
       - 
-        name: Install necessary dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends aria2 lz4
-          echo $PATH
+        name: Initialize Osmosis Node
+        run:  osmosisd init osmo-github-runner --home $HOME
       - 
         name: Download genesis
-        run:  wget -q --show-progress -O $HOME/genesis.json ${{ env.GENESIS_URL }}
-      - 
-        name: echo home
-        run:  echo  $HOME
-      - 
-        name: pwd
-        run:  pwd
+        run:  wget -q -O $HOME/config/genesis.json ${{ env.GENESIS_URL }}
       - 
         name: ls
         run:  ls
