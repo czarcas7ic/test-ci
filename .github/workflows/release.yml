@@ -65,7 +65,9 @@ jobs:
         name: Copy osmosisd binary to PATH and check version
         run: |
           ls -R
+          echo $PATH
           sudo cp osmosis-*-linux-amd64 /usr/local/bin/osmosisd
+          sudo chmod 755 /usr/local/bin/osmosisd
           osmosisd version
         working-directory: release
       - 
