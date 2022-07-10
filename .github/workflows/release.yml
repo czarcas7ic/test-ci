@@ -11,6 +11,9 @@ env:
   DOCKER_REPOSITORY: osmolabs/osmosis
   CURRENT_TAG: ${{ github.ref_name }} # ref_name = the branch or tag name that triggered the workflow run.
   GENESIS_URL: https://github.com/osmosis-labs/networks/raw/main/osmosis-1/genesis.json
+  SNAPSHOT_URL: https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json
+  ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
+  RPC_ENDPOINT: https://rpc.osmosis.zone
  
 jobs:
 
@@ -78,12 +81,34 @@ jobs:
         name: Download genesis
         run:  wget -q -O $HOME/.osmosisd/config/genesis.json ${{ env.GENESIS_URL }}
       - 
-        name: Download snapshot
-        run:  |
-          SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[0].url')
-          wget -q -O - $SNAPSHOT_URL | lz4 -d | tar -C $HOME/.osmosisd/ -xvf - 
+        name: Download address book
+        run:  wget -q -O $HOME/.osmosisd/config/addrbook.json ${{ env.ADDRBOOK_URL }}
+      # - 
+      #   name: Download snapshot
+      #   run:  |
+      #     SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[0].url')
+      #     wget -q -O - $SNAPSHOT_URL | lz4 -d | tar -C $HOME/.osmosisd/ -xf - 
       - 
-        name: ls
+        name: Start Osmosis Node
+        run:  |
+          CONFIG_FOLDER=$HOME/.osmosisd/config
+
+          # Get latest block height and calculate the block height where it should stop
+          LAST_BLOCK_HEIGHT=$(curl -s {{ env.RPC_ENDPOINT }}/abci_info | jq -r '.result.response.last_block_height')
+          DELTA_HEIGHT=20
+          HALT_HEIGHT=$(($LAST_BLOCK_HEIGHT + $DELTA_HEIGHT))
+
+          # config.toml 
+
+          # app.toml
+          # sed -i "/^halt-height = .*/ s//halt-height = $HALT_HEIGHT/" $CONFIG_FOLDER/app.toml
+          osmosisd start \
+            --halt-height $HALT_HEIGHT \
+            --pruning everything
+            #--p2p.seeds 
+          
+      - 
+        name: Finish
         run: |
           ls $HOME/.osmosisd/
           ls $HOME/.osmosisd/data
