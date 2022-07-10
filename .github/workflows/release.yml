@@ -82,7 +82,7 @@ jobs:
         run:  |
           SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[0].url')
           wget -O - $SNAPSHOT_URL | lz4 -d | tar -xvf -
-        working-directory: $HOME/.osmosisd/
+        working-directory: .osmosisd
       - 
         name: ls
         run: |
