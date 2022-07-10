@@ -62,7 +62,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends aria2 lz4 jq
       -
-        name: Download artifics from previous job
+        name: Download artifacts from previous job
         uses: actions/download-artifact@v3
         with:
           name: release
@@ -106,7 +106,7 @@ jobs:
             --moniker osmo-github-runner \
             --home $HOME/.osmosisd/ \ 
             --halt-height $HALT_HEIGHT \
-            --pruning everything             
+            #--pruning everything             
             #--p2p.seeds 
           
       - 
