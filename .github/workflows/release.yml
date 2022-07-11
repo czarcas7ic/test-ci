@@ -102,10 +102,6 @@ jobs:
           LAST_BLOCK_HEIGHT=$(curl -s https://rpc.osmosis.zone/abci_info | dasel -r json '.result.response.last_block_height')
           echo "Last block height: $LAST_BLOCK_HEIGHT"
 
-          LAST_BLOCK_HEIGHT=$(curl -s https://rpc-osmosis.blockapsis.com/abci_info | dasel -r json '.result.response.last_block_height')
-          echo "Last block height: $LAST_BLOCK_HEIGHT"
-
-
           # Calculate height I should halt
           DELTA_HALT_HEIGHT=20
           HALT_HEIGHT=$(($LAST_BLOCK_HEIGHT + $DELTA_HALT_HEIGHT))
