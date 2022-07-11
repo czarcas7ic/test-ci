@@ -91,7 +91,7 @@ jobs:
       #     SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[0].url')
       #     wget -q -O - $SNAPSHOT_URL | lz4 -d | tar -C $HOME/.osmosisd/ -xf - 
       - 
-        name: Start Osmosis Node
+        name: Configure Osmosis Node
         run:  |
           CONFIG_FOLDER=$HOME/.osmosisd/config
 
@@ -124,10 +124,10 @@ jobs:
 
           # app.toml
           dasel put string -f $CONFIG_FOLDER/app.toml -r toml '.halt-height' $HALT_HEIGHT
-          
-          osmosisd start \
-            --moniker osmo-github-runner \
-            --home $HOME/.osmosisd/ 
+      
+      - 
+        name: Start Osmosis Node
+        run: osmosisd start --moniker osmo-github-runner --home $HOME/.osmosisd/ 
       - 
         name: Finish
         run: |
