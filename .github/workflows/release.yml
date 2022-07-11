@@ -123,6 +123,7 @@ jobs:
 
           # Edit app.toml
           dasel put string -f $CONFIG_FOLDER/app.toml '.halt-height' $HALT_HEIGHT
+          dasel put string -f $CONFIG_FOLDER/app.toml '.pruning' everything
       
       - 
         name: Start Osmosis Node
