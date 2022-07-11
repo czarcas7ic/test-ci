@@ -15,7 +15,7 @@ env:
   # ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
   ADDRBOOK_URL: https://snapshots1.polkachu.com/addrbook/osmosis/addrbook.json
   # RPC_ENDPOINT: https://rpc.osmosis.zone
-  RPC_ENDPOINT: https://osmosis-rpc.polkachu.com/
+  RPC_ENDPOINT: https://osmosis-rpc.polkachu.com
  
 jobs:
 
