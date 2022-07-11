@@ -76,7 +76,7 @@ jobs:
         working-directory: release
       - 
         name: Initialize Osmosis Node
-        run:  osmosisd init osmo-github-runner --home $HOME/.osmosisd/ --chain-id=osmo-1
+        run:  osmosisd init osmo-github-runner --home $HOME/.osmosisd/ --chain-id=osmosis-1
       - 
         name: Download genesis
         run:  wget -q -O $HOME/.osmosisd/config/genesis.json ${{ env.GENESIS_URL }}
@@ -93,21 +93,33 @@ jobs:
         run:  |
           CONFIG_FOLDER=$HOME/.osmosisd/config
 
-          # Get latest block height and calculate the block height where it should stop
+          # Get last block height
           LAST_BLOCK_HEIGHT=$(curl -s {{ env.RPC_ENDPOINT }}/abci_info | jq -r '.result.response.last_block_height')
-          DELTA_HEIGHT=20
-          HALT_HEIGHT=$(($LAST_BLOCK_HEIGHT + $DELTA_HEIGHT))
+          
+          # Calculate height I should halt
+          DELTA_HALT_HEIGHT=20
+          HALT_HEIGHT=$(($LAST_BLOCK_HEIGHT + $DELTA_HALT_HEIGHT))
 
-          # config.toml 
+          # Calculate height I should start
+          DELTA_START_HEIGHT=20
+          TRUST_HEIGHT=$(($LAST_BLOCK_HEIGHT - $DELTA_START_HEIGHT))
+          TRUST_HEIGHT_HASH=$(curl -s {{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | jq -r '.result.block_id.hash')
+
+          RPC_SERVERS="{{ env.RPC_ENDPOINT }},https://rpc-osmosis.blockapsis.com/"
+
+          # config.toml
+          sed -i '/^enable = false/ s//enable = true/' $CONFIG_FILE # enable state sync
+          sed -i "/^trust_height = .*/ s//trust_height = $TRUST_HEIGHT/" $CONFIG_FILE
+          sed -i "/^trust_hash = .*/ s//trust_hash = \"$TRUST_HASH\"/" $CONFIG_FILE
+          sed -i "/^rpc_servers = .*/ s//rpc_servers = \"$RPC_SERVERS\"/" $CONFIG_FILE
 
           # app.toml
-          # sed -i "/^halt-height = .*/ s//halt-height = $HALT_HEIGHT/" $CONFIG_FOLDER/app.toml
+          sed -i "/^halt-height = .*/ s//halt-height = $HALT_HEIGHT/" $CONFIG_FOLDER/app.toml
+
           osmosisd start \
             --moniker osmo-github-runner \
             --home $HOME/.osmosisd/ \ 
-            --halt-height $HALT_HEIGHT \
-            #--pruning everything             
-            #--p2p.seeds 
+            --halt-height $HALT_HEIGHT
           
       - 
         name: Finish
