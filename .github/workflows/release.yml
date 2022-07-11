@@ -12,7 +12,8 @@ env:
   CURRENT_TAG: ${{ github.ref_name }} # ref_name = the branch or tag name that triggered the workflow run.
   GENESIS_URL: https://github.com/osmosis-labs/networks/raw/main/osmosis-1/genesis.json
   SNAPSHOT_URL: https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json
-  ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
+  # ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
+  ADDRBOOK_URL: https://snapshots1.polkachu.com/addrbook/osmosis/addrbook.json
   RPC_ENDPOINT: https://rpc.osmosis.zone
  
 jobs:
@@ -96,8 +97,7 @@ jobs:
           CONFIG_FOLDER=$HOME/.osmosisd/config
 
           # Get last block height
-          LAST_BLOCK_HEIGHT=$(curl ${{ env.RPC_ENDPOINT }}/abci_info | dasel --plain -r json '.result.response.last_block_height')
-          echo "Last block height: $LAST_BLOCK_HEIGHT"
+          LAST_BLOCK_HEIGHT=$(curl -s ${{ env.RPC_ENDPOINT }}/abci_info | dasel --plain -r json '.result.response.last_block_height')
 
           # Calculate height I should halt
           DELTA_HALT_HEIGHT=20
@@ -106,7 +106,6 @@ jobs:
           # Calculate height I should start
           DELTA_START_HEIGHT=20
           TRUST_HEIGHT=$(($LAST_BLOCK_HEIGHT - $DELTA_START_HEIGHT))
-          echo "Trust height: $TRUST_HEIGHT"
           TRUST_HEIGHT_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | dasel -r json '.result.block_id.hash')
           RPC_SERVERS="https://osmosis-rpc.polkachu.com/,https://rpc-osmosis.blockapsis.com/"
 
