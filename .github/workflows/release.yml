@@ -106,7 +106,7 @@ jobs:
           # Calculate height I should start
           DELTA_START_HEIGHT=20
           TRUST_HEIGHT=$(($LAST_BLOCK_HEIGHT - $DELTA_START_HEIGHT))
-          TRUST_HEIGHT_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | dasel -r json '.result.block_id.hash')
+          TRUST_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | dasel -r json '.result.block_id.hash')
           RPC_SERVERS="https://osmosis-rpc.polkachu.com/,https://rpc-osmosis.blockapsis.com/"
 
           echo "Last block height: $LAST_BLOCK_HEIGHT"
@@ -114,13 +114,13 @@ jobs:
           echo "Trust height: $TRUST_HEIGHT"
 
           # Edit config.toml
-          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.enable'       'true'
-          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.trust_height' $TRUST_HEIGHT
-          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.trust_hash'   $TRUST_HASH
-          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.rpc_servers'  $RPC_SERVERS
+          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.enable'       'true'
+          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.trust_height' $TRUST_HEIGHT
+          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.trust_hash'   $TRUST_HASH
+          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.rpc_servers'  $RPC_SERVERS
 
           # Edit app.toml
-          dasel put string -f $CONFIG_FOLDER/app.toml -r toml '.halt-height' $HALT_HEIGHT
+          dasel put string -f $CONFIG_FOLDER/app.toml '.halt-height' $HALT_HEIGHT
       
       - 
         name: Start Osmosis Node
