@@ -99,7 +99,7 @@ jobs:
 
           # Get last block height
           LAST_BLOCK_HEIGHT=$(curl -s ${{ env.RPC_ENDPOINT }}/commit | dasel --plain -r json '.result.signed_header.header.height')
-          LAST_BLOCK_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/abci_info | dasel --plain -r json '.result.signed_header.commit.block_id.hash')
+          LAST_BLOCK_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/commit | dasel --plain -r json '.result.signed_header.commit.block_id.hash')
 
           # Calculate height I should halt
           DELTA_HALT_HEIGHT=20
@@ -110,8 +110,6 @@ jobs:
           TRUST_HASH=$LAST_BLOCK_HASH
 
           RPC_SERVERS="osmosis-rpc.polkachu.com,osmosis.artifact-staking.io:26657"
-
-          curl -s https://233.123.0.140:26657/commit | jq "{height: .result.signed_header.header.height, hash: .result.signed_header.commit.block_id.hash}"
 
           echo "Last block height: $LAST_BLOCK_HEIGHT"
           echo "Halt height: $HALT_HEIGHT"
