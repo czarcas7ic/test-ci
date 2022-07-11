@@ -61,6 +61,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends aria2 lz4 jq
+          curl -sSLf "$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod +x dasel
+          sudo mv ./dasel /usr/local/bin/dasel
       -
         name: Download artifacts from previous job
         uses: actions/download-artifact@v3
@@ -71,7 +73,7 @@ jobs:
         name: Copy osmosisd binary to PATH and check version
         run: |
           sudo cp osmosisd-*-linux-amd64 /usr/local/bin/osmosisd
-          sudo chmod 755 /usr/local/bin/osmosisd
+          sudo chmod +x /usr/local/bin/osmosisd
           osmosisd version
         working-directory: release
       - 
@@ -104,22 +106,24 @@ jobs:
           DELTA_START_HEIGHT=20
           TRUST_HEIGHT=$(($LAST_BLOCK_HEIGHT - $DELTA_START_HEIGHT))
           TRUST_HEIGHT_HASH=$(curl -s {{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | jq -r '.result.block_id.hash')
+          RPC_SERVERS="https://osmosis-rpc.polkachu.com/,https://rpc-osmosis.blockapsis.com/"
 
-          RPC_SERVERS="{{ env.RPC_ENDPOINT }},https://rpc-osmosis.blockapsis.com/"
+          echo "Last block height: $LAST_BLOCK_HEIGHT"
+          echo "Halt height: $HALT_HEIGHT"
+          echo "Trust height: $TRUST_HEIGHT"
 
           # config.toml
-          sed -i '/^enable = false/ s//enable = true/' $CONFIG_FOLDER/config.toml # enable state sync
-          sed -i "/^trust_height = .*/ s//trust_height = $TRUST_HEIGHT/" $CONFIG_FOLDER/config.toml
-          sed -i "/^trust_hash = .*/ s//trust_hash = \"$TRUST_HASH\"/" $CONFIG_FOLDER/config.toml
-          sed -i "/^rpc_servers = .*/ s//rpc_servers = \"$RPC_SERVERS\"/" $CONFIG_FOLDER/config.toml
+          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.enable'       'true'
+          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.trust_height' $TRUST_HEIGHT
+          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.trust_hash'   $TRUST_HASH
+          dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.rpc_servers'  $RPC_SERVERS
 
           # app.toml
-          sed -i "/^halt-height = .*/ s//halt-height = $HALT_HEIGHT/" $CONFIG_FOLDER/app.toml
+          dasel put string -f $CONFIG_FOLDER/app.toml -r toml '.halt-height' $HALT_HEIGHT
           
           osmosisd start \
             --moniker osmo-github-runner \
             --home $HOME/.osmosisd/ 
-
       - 
         name: Finish
         run: |
