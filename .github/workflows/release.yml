@@ -14,7 +14,8 @@ env:
   SNAPSHOT_URL: https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json
   # ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
   ADDRBOOK_URL: https://snapshots1.polkachu.com/addrbook/osmosis/addrbook.json
-  RPC_ENDPOINT: https://rpc.osmosis.zone
+  # RPC_ENDPOINT: https://rpc.osmosis.zone
+  RPC_ENDPOINT: https://osmosis-rpc.polkachu.com/
  
 jobs:
 
@@ -42,7 +43,7 @@ jobs:
         name: (stub) Launch release process 
         run: |
           mkdir release
-          wget -q --show-progress -P release/ https://github.com/osmosis-labs/osmosis/releases/download/v10.0.0/osmosisd-10.0.0-linux-amd64
+          wget -q -P release/ https://github.com/osmosis-labs/osmosis/releases/download/v10.0.0/osmosisd-10.0.0-linux-amd64
       - 
         name: Upload release folder
         uses: actions/upload-artifact@v2
