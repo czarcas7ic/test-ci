@@ -109,7 +109,7 @@ jobs:
           TRUST_HEIGHT=$LAST_BLOCK_HEIGHT
           TRUST_HASH=$LAST_BLOCK_HASH
 
-          RPC_SERVERS="osmosis-rpc.polkachu.com,osmosis.artifact-staking.io:26657"
+          RPC_SERVERS="osmosis.strange.love:26657,osmosis.artifact-staking.io:26657"
 
           echo "Last block height: $LAST_BLOCK_HEIGHT"
           echo "Halt height: $HALT_HEIGHT"
