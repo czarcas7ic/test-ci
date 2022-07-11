@@ -108,19 +108,18 @@ jobs:
           RPC_SERVERS="{{ env.RPC_ENDPOINT }},https://rpc-osmosis.blockapsis.com/"
 
           # config.toml
-          sed -i '/^enable = false/ s//enable = true/' $CONFIG_FILE # enable state sync
-          sed -i "/^trust_height = .*/ s//trust_height = $TRUST_HEIGHT/" $CONFIG_FILE
-          sed -i "/^trust_hash = .*/ s//trust_hash = \"$TRUST_HASH\"/" $CONFIG_FILE
-          sed -i "/^rpc_servers = .*/ s//rpc_servers = \"$RPC_SERVERS\"/" $CONFIG_FILE
+          sed -i '/^enable = false/ s//enable = true/' $CONFIG_FOLDER/config.toml # enable state sync
+          sed -i "/^trust_height = .*/ s//trust_height = $TRUST_HEIGHT/" $CONFIG_FOLDER/config.toml
+          sed -i "/^trust_hash = .*/ s//trust_hash = \"$TRUST_HASH\"/" $CONFIG_FOLDER/config.toml
+          sed -i "/^rpc_servers = .*/ s//rpc_servers = \"$RPC_SERVERS\"/" $CONFIG_FOLDER/config.toml
 
           # app.toml
           sed -i "/^halt-height = .*/ s//halt-height = $HALT_HEIGHT/" $CONFIG_FOLDER/app.toml
-
+          
           osmosisd start \
             --moniker osmo-github-runner \
-            --home $HOME/.osmosisd/ \ 
-            --halt-height $HALT_HEIGHT
-          
+            --home $HOME/.osmosisd/ 
+
       - 
         name: Finish
         run: |
