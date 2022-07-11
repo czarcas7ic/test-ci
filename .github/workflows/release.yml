@@ -10,12 +10,13 @@ on:
 env:
   DOCKER_REPOSITORY: osmolabs/osmosis
   CURRENT_TAG: ${{ github.ref_name }} # ref_name = the branch or tag name that triggered the workflow run.
-  GENESIS_URL: https://github.com/osmosis-labs/networks/raw/main/osmosis-1/genesis.json
+  # GENESIS_URL: https://github.com/osmosis-labs/networks/raw/main/osmosis-1/genesis.json
   SNAPSHOT_URL: https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json
-  # ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
-  ADDRBOOK_URL: https://snapshots1.polkachu.com/addrbook/osmosis/addrbook.json
-  # RPC_ENDPOINT: https://rpc.osmosis.zone
-  RPC_ENDPOINT: https://osmosis-rpc.polkachu.com
+  ADDRBOOK_URL: https://quicksync.io/addrbook.osmosis.json
+  # ADDRBOOK_URL: https://snapshots1.polkachu.com/addrbook/osmosis/addrbook.json
+  RPC_ENDPOINT: https://rpc.osmosis.zone
+  LCD_ENDPOINT: https://lcd.osmosis.zone
+  # RPC_ENDPOINT: https://osmosis-rpc.polkachu.com
  
 jobs:
 
@@ -80,54 +81,38 @@ jobs:
         working-directory: release
       - 
         name: Initialize Osmosis Node
-        run:  osmosisd init osmo-github-runner --home $HOME/.osmosisd/ --chain-id=osmosis-1
-      - 
-        name: Download genesis
-        run:  wget -q -O $HOME/.osmosisd/config/genesis.json ${{ env.GENESIS_URL }}
+        run:  osmosisd init osmo-github-runner
       - 
         name: Download address book
         run:  wget -q -O $HOME/.osmosisd/config/addrbook.json ${{ env.ADDRBOOK_URL }}
-      # - 
-      #   name: Download snapshot
-      #   run:  |
-      #     SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[0].url')
-      #     wget -q -O - $SNAPSHOT_URL | lz4 -d | tar -C $HOME/.osmosisd/ -xf - 
+      - 
+        name: Download pre epoch snapshot
+        run:  |
+          SNAPSHOT_URL=$(curl -s https://osmosis-snapshot.sfo3.cdn.digitaloceanspaces.com/osmosis.json  | jq -r '.[1].url')
+          wget -q -O - $SNAPSHOT_URL | lz4 -d | tar -C $HOME/.osmosisd/ -xf - 
       - 
         name: Configure Osmosis Node
         run:  |
           CONFIG_FOLDER=$HOME/.osmosisd/config
 
-          # Get last block height
-          LAST_BLOCK_HEIGHT=$(curl -s ${{ env.RPC_ENDPOINT }}/commit | dasel --plain -r json '.result.signed_header.header.height')
-          LAST_BLOCK_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/commit | dasel --plain -r json '.result.signed_header.commit.block_id.hash')
+          # Get height of most recent epoch
+          LAST_EPOCH_BLOCK_HEIGHT=$(curl -s ${{ env.LCD_ENDPOINT }}/osmosis/epochs/v1beta1/epochs | dasel --plain -r json 'epochs.(identifier=day).current_epoch_start_height')
 
           # Calculate height I should halt
           DELTA_HALT_HEIGHT=20
-          HALT_HEIGHT=$(($LAST_BLOCK_HEIGHT + $DELTA_HALT_HEIGHT))
-
-          # Calculate height I should start
-          TRUST_HEIGHT=$LAST_BLOCK_HEIGHT
-          TRUST_HASH=$LAST_BLOCK_HASH
-
-          RPC_SERVERS="osmosis.strange.love:26657,osmosis.artifact-staking.io:26657"
-
-          echo "Last block height: $LAST_BLOCK_HEIGHT"
-          echo "Halt height: $HALT_HEIGHT"
-          echo "Trust height: $TRUST_HEIGHT"
+          HALT_HEIGHT=$(($LAST_EPOCH_BLOCK_HEIGHT + $DELTA_HALT_HEIGHT))
 
           # Edit config.toml
-          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.enable'       'true'
-          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.trust_height' $TRUST_HEIGHT
-          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.trust_hash'   $TRUST_HASH
-          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.rpc_servers'  $RPC_SERVERS
+          dasel put string -f $CONFIG_FOLDER/config.toml '.tx_index.indexer' null
 
           # Edit app.toml
           dasel put string -f $CONFIG_FOLDER/app.toml '.halt-height' $HALT_HEIGHT
           dasel put string -f $CONFIG_FOLDER/app.toml '.pruning' everything
+          dasel put string -f $CONFIG_FOLDER/app.toml '.state-sync.snapshot-interval' 0
       
       - 
         name: Start Osmosis Node
-        run: osmosisd start --moniker osmo-github-runner --home $HOME/.osmosisd/ 
+        run: osmosisd start
       - 
         name: Finish
         run: |
