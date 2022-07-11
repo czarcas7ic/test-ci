@@ -116,7 +116,7 @@ jobs:
           echo "Trust height: $TRUST_HEIGHT"
 
           # Edit config.toml
-          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.enable'       'true'
+          dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.enable'       'false'
           dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.trust_height' $TRUST_HEIGHT
           dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.trust_hash'   $TRUST_HASH
           dasel put string -f $CONFIG_FOLDER/config.toml '.statesync.rpc_servers'  $RPC_SERVERS
