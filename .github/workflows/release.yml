@@ -106,7 +106,8 @@ jobs:
           # Calculate height I should start
           DELTA_START_HEIGHT=20
           TRUST_HEIGHT=$(($LAST_BLOCK_HEIGHT - $DELTA_START_HEIGHT))
-          TRUST_HEIGHT_HASH=$(curl -s {{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | dasel -r json '.result.block_id.hash')
+          echo "Trust height: $TRUST_HEIGHT"
+          TRUST_HEIGHT_HASH=$(curl -s ${{ env.RPC_ENDPOINT }}/block?height=$TRUST_HEIGHT | dasel -r json '.result.block_id.hash')
           RPC_SERVERS="https://osmosis-rpc.polkachu.com/,https://rpc-osmosis.blockapsis.com/"
 
           echo "Last block height: $LAST_BLOCK_HEIGHT"
