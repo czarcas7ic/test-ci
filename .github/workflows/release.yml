@@ -96,7 +96,7 @@ jobs:
           CONFIG_FOLDER=$HOME/.osmosisd/config
 
           # Get last block height
-          LAST_BLOCK_HEIGHT=$(curl ${{ env.RPC_ENDPOINT }}/abci_info | dasel -r json '.result.response.last_block_height')
+          LAST_BLOCK_HEIGHT=$(curl ${{ env.RPC_ENDPOINT }}/abci_info | dasel --plain -r json '.result.response.last_block_height')
           echo "Last block height: $LAST_BLOCK_HEIGHT"
 
           # Calculate height I should halt
@@ -113,13 +113,13 @@ jobs:
           echo "Halt height: $HALT_HEIGHT"
           echo "Trust height: $TRUST_HEIGHT"
 
-          # config.toml
+          # Edit config.toml
           dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.enable'       'true'
           dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.trust_height' $TRUST_HEIGHT
           dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.trust_hash'   $TRUST_HASH
           dasel put string -f $CONFIG_FOLDER/config.toml -r toml '.statesync.rpc_servers'  $RPC_SERVERS
 
-          # app.toml
+          # Edit app.toml
           dasel put string -f $CONFIG_FOLDER/app.toml -r toml '.halt-height' $HALT_HEIGHT
       
       - 
