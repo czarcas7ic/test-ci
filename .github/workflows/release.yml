@@ -96,10 +96,7 @@ jobs:
           CONFIG_FOLDER=$HOME/.osmosisd/config
 
           # Get last block height
-          LAST_BLOCK_HEIGHT=$(curl -s {{ env.RPC_ENDPOINT }}/abci_info | dasel -r json '.result.response.last_block_height')
-          echo "Last block height: $LAST_BLOCK_HEIGHT"
-
-          LAST_BLOCK_HEIGHT=$(curl -s https://rpc.osmosis.zone/abci_info | dasel -r json '.result.response.last_block_height')
+          LAST_BLOCK_HEIGHT=$(curl {{ env.RPC_ENDPOINT }}/abci_info | dasel -r json '.result.response.last_block_height')
           echo "Last block height: $LAST_BLOCK_HEIGHT"
 
           # Calculate height I should halt
